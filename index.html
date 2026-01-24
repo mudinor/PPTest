@@ -6,6 +6,335 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>Funciona</h1>
+  <main class="page">
+    <header class="hero">
+      <p class="kicker">Portafolio</p>
+      <h1>Proyectos destacados</h1>
+      <p class="subtitle">Cards con flip en hover y diseño responsive.</p>
+    </header>
+
+    <nav class="filters" aria-label="Filtrar por tag">
+      <button class="filter-btn is-active" type="button" data-filter="all">Todos</button>
+      <button class="filter-btn" type="button" data-filter="ux">UX</button>
+      <button class="filter-btn" type="button" data-filter="dev">Dev</button>
+    </nav>
+
+    <section class="grid">
+      <article class="card" data-tags="ux">
+        <div class="card-inner">
+          <div class="card-face card-front">
+            <span class="card-tag">UX</span>
+            <h3>Landing SaaS</h3>
+            <p>Diseño UI + animaciones suaves</p>
+            <span class="tag">UI/UX</span>
+          </div>
+          <div class="card-face card-back">
+            <div class="media">
+              <video class="card-video" src="videos/Easy Assign Material.mp4" muted loop playsinline></video>
+            </div>
+            <div class="card-back-content">
+              <span class="card-tag">UX</span>
+              <h3>Detalles</h3>
+              <p>Stack: HTML, CSS, JS. Enfoque en conversión y performance.</p>
+              <a class="cta" href="#">Ver caso</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" data-tags="dev">
+        <div class="card-inner">
+          <div class="card-face card-front">
+            <span class="card-tag">Dev</span>
+            <h3>Dashboard</h3>
+            <p>Analítica en tiempo real</p>
+            <span class="tag">Data</span>
+          </div>
+          <div class="card-face card-back">
+            <div class="media">
+              <video class="card-video" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" muted loop playsinline></video>
+            </div>
+            <div class="card-back-content">
+              <span class="card-tag">Dev</span>
+              <h3>Detalles</h3>
+              <p>Componentes reutilizables y gráficos responsivos.</p>
+              <a class="cta" href="#">Ver caso</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" data-tags="ux">
+        <div class="card-inner">
+          <div class="card-face card-front">
+            <span class="card-tag">UX</span>
+            <h3>eCommerce</h3>
+            <p>Checkout optimizado</p>
+            <span class="tag">Growth</span>
+          </div>
+          <div class="card-face card-back">
+            <div class="media">
+              <video class="card-video" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" muted loop playsinline></video>
+            </div>
+            <div class="card-back-content">
+              <span class="card-tag">UX</span>
+              <h3>Detalles</h3>
+              <p>Mejora de UX y tasas de conversión.</p>
+              <a class="cta" href="#">Ver caso</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" data-tags="dev">
+        <div class="card-inner">
+          <div class="card-face card-front">
+            <span class="card-tag">Dev</span>
+            <h3>App móvil</h3>
+            <p>Interacciones micro-animadas</p>
+            <span class="tag">Mobile</span>
+          </div>
+          <div class="card-face card-back">
+            <div class="media">
+              <video class="card-video" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" muted loop playsinline></video>
+            </div>
+            <div class="card-back-content">
+              <span class="card-tag">Dev</span>
+              <h3>Detalles</h3>
+              <p>Prototipado rápido y pruebas con usuarios.</p>
+              <a class="cta" href="#">Ver caso</a>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const cards = Array.from(document.querySelectorAll(".card"));
+
+    cards.forEach((card) => {
+      const video = card.querySelector(".card-video");
+      if (!video) return;
+
+      card.addEventListener("mouseenter", () => {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      });
+
+      card.addEventListener("mouseleave", () => {
+        video.pause();
+      });
+    });
+
+    const animateReflow = () => {
+      if (reduceMotion) return;
+      const firstRects = new Map();
+      cards.forEach((card) => firstRects.set(card, card.getBoundingClientRect()));
+      requestAnimationFrame(() => {
+        cards.forEach((card) => {
+          const first = firstRects.get(card);
+          const last = card.getBoundingClientRect();
+          if (!first) return;
+          const dx = first.left - last.left;
+          const dy = first.top - last.top;
+          if (dx || dy) {
+            card.animate(
+              [
+                { transform: `translate(${dx}px, ${dy}px)` },
+                { transform: "translate(0, 0)" },
+              ],
+              { duration: 520, easing: "cubic-bezier(0.2, 0.7, 0.2, 1)" }
+            );
+          }
+        });
+      });
+    };
+
+    const toggleExpand = (card) => {
+      const firstRects = new Map();
+      const grid = document.querySelector(".grid");
+      const gridCenterX = grid.getBoundingClientRect().left + grid.getBoundingClientRect().width / 2;
+      const rowTops = [];
+      if (!reduceMotion) {
+        cards.forEach((c) => firstRects.set(c, c.getBoundingClientRect()));
+      }
+      cards.forEach((c) => {
+        const rect = firstRects.get(c) || c.getBoundingClientRect();
+        const top = Math.round(rect.top);
+        const match = rowTops.find((t) => Math.abs(t - top) < 2);
+        if (match === undefined) {
+          rowTops.push(top);
+        }
+      });
+      rowTops.sort((a, b) => a - b);
+
+      const isExpanded = card.classList.contains("is-expanded");
+      document
+        .querySelectorAll(".card.is-expanded")
+        .forEach((c) => c.classList.remove("is-expanded"));
+      cards.forEach((c) => {
+        c.style.gridRowStart = "";
+      });
+      if (!isExpanded) {
+        const rect = firstRects.get(card) || card.getBoundingClientRect();
+        const rowIndex = rowTops.findIndex((t) => Math.abs(t - Math.round(rect.top)) < 2);
+        if (rowIndex !== -1) {
+          card.style.gridRowStart = String(rowIndex + 1);
+        }
+        card.classList.add("is-expanded");
+        requestAnimationFrame(() => {
+          card.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      }
+
+      if (!reduceMotion) {
+        requestAnimationFrame(() => {
+          const isExpanding = !isExpanded;
+          cards.forEach((c) => {
+            const first = firstRects.get(c);
+            const last = c.getBoundingClientRect();
+            if (!first) return;
+            const isTarget = c === card;
+            const sx = first.width / last.width;
+            const sy = first.height / last.height;
+            const useScale = isTarget && (sx !== 1 || sy !== 1);
+            const originRect = isExpanding ? first : last;
+            const isRight =
+              originRect.left + originRect.width / 2 >= gridCenterX;
+            const origin = isRight ? "top right" : "top left";
+            const dx = isRight ? first.right - last.right : first.left - last.left;
+            const dy = first.top - last.top;
+            if (dx || dy || useScale) {
+              c.animate(
+                [
+                  {
+                    transform: useScale
+                      ? `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`
+                      : `translate(${dx}px, ${dy}px)`,
+                    transformOrigin: origin,
+                  },
+                  {
+                    transform: useScale
+                      ? "translate(0, 0) scale(1, 1)"
+                      : "translate(0, 0)",
+                    transformOrigin: origin,
+                  },
+                ],
+                { duration: 520, easing: "cubic-bezier(0.2, 0.7, 0.2, 1)" }
+              );
+            }
+          });
+        });
+      }
+    };
+
+    cards.forEach((card) => {
+      card.addEventListener("click", (event) => {
+        if (!card.matches(":hover")) return; // solo cuando esta en flip (hover)
+        if (event.target.closest(".cta")) {
+          event.preventDefault();
+        }
+        toggleExpand(card);
+      });
+    });
+
+    const filterButtons = document.querySelectorAll(".filter-btn");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const applyFilter = (filter) => {
+      const grid = document.querySelector(".grid");
+      const leaveDuration = 300; // velocidad de aparición/desaparición
+      const cardRects = new Map();
+      const matchesMap = new Map();
+      const enteringCards = new Set();
+      const gridRect = grid.getBoundingClientRect();
+      const firstRects = new Map();
+
+      cards.forEach((card) => {
+        cardRects.set(card, card.getBoundingClientRect());
+        const tags = (card.dataset.tags || "").split(",").map((t) => t.trim());
+        const matches = filter === "all" || tags.includes(filter);
+        matchesMap.set(card, matches);
+        if (!reduceMotion && matches) {
+          firstRects.set(card, cardRects.get(card));
+        }
+      });
+
+      cards.forEach((card) => {
+        const matches = matchesMap.get(card);
+        const wasRemoved = card.classList.contains("is-removed");
+
+        if (matches) {
+          if (wasRemoved) {
+            enteringCards.add(card);
+            card.classList.add("is-entering");
+            requestAnimationFrame(() => card.classList.remove("is-entering"));
+          }
+          card.classList.remove("is-removed", "is-hidden", "is-leaving");
+          card.style.position = "";
+          card.style.top = "";
+          card.style.left = "";
+          card.style.width = "";
+          card.style.height = "";
+          return;
+        }
+
+        const rect = cardRects.get(card);
+        const top = rect.top - gridRect.top;
+        const left = rect.left - gridRect.left;
+        card.style.position = "absolute";
+        card.style.top = `${top}px`;
+        card.style.left = `${left}px`;
+        card.style.width = `${rect.width}px`;
+        card.style.height = `${rect.height}px`;
+        card.classList.add("is-leaving");
+        requestAnimationFrame(() => card.classList.add("is-hidden"));
+
+        setTimeout(() => {
+          if (!matchesMap.get(card)) {
+            card.classList.remove("is-leaving", "is-hidden");
+            card.classList.add("is-removed");
+            card.style.position = "";
+            card.style.top = "";
+            card.style.left = "";
+            card.style.width = "";
+            card.style.height = "";
+          }
+        }, leaveDuration);
+      });
+
+      if (!reduceMotion) {
+        requestAnimationFrame(() => {
+          cards.forEach((card) => {
+            if (!matchesMap.get(card)) return;
+            if (enteringCards.has(card)) return; // B solo: no animar reacomodo
+            const first = firstRects.get(card);
+            const last = card.getBoundingClientRect();
+            if (!first) return;
+            const dx = first.left - last.left;
+            const dy = first.top - last.top;
+            if (dx || dy) {
+              card.animate(
+                [
+                  { transform: `translate(${dx}px, ${dy}px)` },
+                  { transform: "translate(0, 0)" },
+                ],
+                { duration: 820, easing: "cubic-bezier(0.2, 0.7, 0.2, 1)" } // velocidad del reacomodo (sube este duration)
+              );
+            }
+          });
+        });
+      }
+    };
+
+    filterButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        filterButtons.forEach((b) => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        applyFilter(btn.dataset.filter || "all");
+      });
+    });
+  </script>
 </body>
 </html>
